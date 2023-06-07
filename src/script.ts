@@ -1,46 +1,68 @@
-const icon = document.getElementById("test") as HTMLElement;
-const wrapper = document.getElementById("wrapper") as HTMLElement;
-let leftPosition = 0;
-let topPosition = 0;
-let xDirection = "left";
-let yDirection = "top";
+const plusIcon = document.getElementById("plus") as HTMLElement;
+let iconList: IconObject[] = [];
 
-const updatePosition = () => {
-    if (xDirection === "left") {
-        if (leftPosition + 1 > wrapper.offsetWidth) {
-            xDirection = "right";
-            leftPosition -= 2;
+interface IconObject {
+    iconEl: HTMLElement;
+    leftPosition: number;
+    topPosition: number;
+    xDirection: string;
+    yDirection: string;
+}
+
+const updatePosition = (iconElement: IconObject) => {
+    if (iconElement.xDirection === "left") {
+        if (iconElement.leftPosition + 1 > window.innerWidth - iconElement.iconEl.clientWidth) {
+            iconElement.xDirection = "right";
+            iconElement.leftPosition -= 1;
         } else {
-            leftPosition += 2;
+            iconElement.leftPosition += 1;
         }
     } else {
-        if (leftPosition - 1 < 0) {
-            xDirection = "left";
-            leftPosition += 2;
+        if (iconElement.leftPosition - 1 < 0) {
+            iconElement.xDirection = "left";
+            iconElement.leftPosition += 1;
         } else {
-            leftPosition -= 2;
+            iconElement.leftPosition -= 1;
         }
     }
 
-    if (yDirection === "top") {
-        if (topPosition + 1 > wrapper.clientHeight) {
-            yDirection = "bottom";
-            topPosition -= 2;
+    if (iconElement.yDirection === "top") {
+        if (iconElement.topPosition + 1 > window.innerHeight - iconElement.iconEl.clientHeight) {
+            iconElement.yDirection = "bottom";
+            iconElement.topPosition -= 1;
         } else {
-            topPosition += 2;
+            iconElement.topPosition += 1;
         }
     } else {
-        if (topPosition - 1 < 0) {
-            yDirection = "top";
-            topPosition += 2;
+        if (iconElement.topPosition - 1 < 0) {
+            iconElement.yDirection = "top";
+            iconElement.topPosition += 1;
         } else {
-            topPosition -= 2;
+            iconElement.topPosition -= 1;
         }
     }
 
-    icon.setAttribute("style", `left: ${leftPosition}px; top: ${topPosition}px;`);
+    iconElement.iconEl.setAttribute("style", `left: ${iconElement.leftPosition}px; top: ${iconElement.topPosition}px;`);
 };
 
-setInterval(updatePosition, 10);
+plusIcon.addEventListener("click", () => {
+    const leftStart = Math.floor(Math.random() * (window.innerWidth - 50));
+    const topStart = Math.floor(Math.random() * (window.innerHeight - 50));
+    const icon = document.createElement("i") as HTMLElement;
+    const iconObject = {
+        iconEl: icon,
+        leftPosition: leftStart,
+        topPosition: topStart,
+        xDirection: Math.floor(Math.random() * 100) > 49 ? "left" : "right",
+        yDirection: Math.floor(Math.random() * 100) > 49 ? "top" : "bottom"
+    };
+    icon.setAttribute("style", `left: ${iconObject.leftPosition}px; top: ${iconObject.topPosition}px;`);
+    icon.setAttribute("class", "fa-solid fa-scissors");
+    document.body.appendChild(icon);
 
-console.log(wrapper.clientWidth, wrapper.offsetWidth, wrapper.scrollWidth);
+    iconList.push(iconObject);
+
+    setInterval(() => {
+        updatePosition(iconObject);
+    }, Math.floor(Math.random() * 10) + 1);
+});

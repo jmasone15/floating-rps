@@ -2,8 +2,10 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    margin: 0;
 }
 
 #wrapper {
@@ -12,8 +14,10 @@ body {
     border: 1px solid black;
 }
 
+.fa-scissors {
+    position: fixed;
+}
+
 i {
     font-size: 50px;
-    position: relative;
-    /* transition: all ease 0.5s; */
 }

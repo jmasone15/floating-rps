@@ -16,6 +16,7 @@ body {
 
 .fa-scissors {
     position: fixed;
+    border: solid 1px red;
 }
 
 i {

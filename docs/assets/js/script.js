@@ -1,119 +1,78 @@
 "use strict";
-const plusIcon = document.getElementById("plus");
-let iconList = [];
-const areElementsTouching = (elOne, elTwo) => {
-    const rectOne = elOne.getBoundingClientRect();
-    const rectTwo = elTwo.getBoundingClientRect();
-    if (rectOne.right === rectTwo.left && rectOne.y >= rectTwo.top && rectOne.y <= rectTwo.bottom) {
-        return "right";
+const plusIconEl = document.getElementById("plus");
+let elementCounter = 0;
+let iconArray = [];
+class Movement {
+    num;
+    forward;
+    increment;
+    max;
+    constructor(num, forward, increment, vertical) {
+        this.num = num;
+        this.forward = forward;
+        this.increment = increment;
+        this.max = vertical ? window.innerHeight - 52 : window.innerWidth - 52;
     }
-    else if (rectOne.left === rectTwo.right && rectOne.y >= rectTwo.top && rectOne.y <= rectTwo.bottom) {
-        return "left";
-    }
-    else if (rectOne.bottom === rectTwo.top && rectOne.x >= rectTwo.left && rectOne.x <= rectTwo.right) {
-        return "bottom";
-    }
-    else if (rectOne.top === rectTwo.bottom && rectOne.x >= rectTwo.left && rectOne.x <= rectTwo.right) {
-        return "top";
-    }
-    else {
-        return "";
-    }
-};
-const updatePosition = (iconElement) => {
-    let touching = "";
-    let bumpedId = -1;
-    let bumpedElement;
-    for (let i = 0; i < iconList.length; i++) {
-        if (iconElement.id === iconList[i].id) {
-            continue;
-        }
-        touching = areElementsTouching(iconElement.iconEl, iconList[i].iconEl);
-        if (touching !== "") {
-            bumpedId = iconList[i].id;
-            break;
-        }
-    }
-    switch (touching) {
-        case "left":
-            iconElement.xDirection = "left";
-            bumpedElement = iconList.filter((i) => i.id === bumpedId)[0];
-            bumpedElement.xDirection = "right";
-            break;
-        case "right":
-            iconElement.xDirection = "right";
-            bumpedElement = iconList.filter((i) => i.id === bumpedId)[0];
-            bumpedElement.xDirection = "left";
-            break;
-        case "top":
-            iconElement.yDirection = "top";
-            bumpedElement = iconList.filter((i) => i.id === bumpedId)[0];
-            bumpedElement.yDirection = "bottom";
-            break;
-        case "bottom":
-            iconElement.yDirection = "bottom";
-            bumpedElement = iconList.filter((i) => i.id === bumpedId)[0];
-            bumpedElement.yDirection = "top";
-            break;
-        default:
-            break;
-    }
-    if (iconElement.xDirection === "left") {
-        if (iconElement.leftPosition + 1 > window.innerWidth - iconElement.iconEl.clientWidth) {
-            iconElement.xDirection = "right";
-            iconElement.leftPosition--;
+    move() {
+        if (this.forward) {
+            if (this.num - this.increment < 0) {
+                this.forward = false;
+                this.num += this.increment;
+            }
+            else {
+                this.num -= this.increment;
+            }
         }
         else {
-            iconElement.leftPosition++;
+            if (this.num + this.increment > this.max) {
+                this.forward = true;
+                this.num -= this.increment;
+            }
+            else {
+                this.num += this.increment;
+            }
         }
     }
-    else {
-        if (iconElement.leftPosition - 1 < 0) {
-            iconElement.xDirection = "left";
-            iconElement.leftPosition++;
-        }
-        else {
-            iconElement.leftPosition--;
-        }
+}
+class IconElement {
+    id;
+    element = document.createElement("i");
+    xMove;
+    yMove;
+    constructor(id, startingX, startingY) {
+        this.id = id;
+        this.xMove = new Movement(startingX || 0, false, 1, false);
+        this.yMove = new Movement(startingY || 0, false, 0, true);
     }
-    if (iconElement.yDirection === "top") {
-        if (iconElement.topPosition + 1 > window.innerHeight - iconElement.iconEl.clientHeight) {
-            iconElement.yDirection = "bottom";
-            iconElement.topPosition -= 1;
-        }
-        else {
-            iconElement.topPosition += 1;
-        }
+    init() {
+        this.element.setAttribute("class", "fa-solid fa-scissors");
+        this.element.setAttribute("style", `left: ${this.xMove.num}px; top: ${this.yMove.num}px;`);
+        document.body.appendChild(this.element);
+        setInterval(() => {
+            this.moveIcon();
+        }, 1);
+        iconArray.push(this);
+        console.dir(this.element);
     }
-    else {
-        if (iconElement.topPosition - 1 < 0) {
-            iconElement.yDirection = "top";
-            iconElement.topPosition += 1;
+    moveIcon() {
+        this.xMove.move();
+        this.yMove.move();
+        for (let i = 0; i < iconArray.length; i++) {
+            const element = iconArray[i];
+            if (element.id !== this.id) {
+                if ((this.xMove.num === element.xMove.num ||
+                    this.xMove.num === element.xMove.num + 52) &&
+                    this.yMove.num <= element.yMove.num + 52) {
+                    this.xMove.forward = !this.xMove.forward;
+                    element.xMove.forward = !element.xMove.forward;
+                    break;
+                }
+            }
         }
-        else {
-            iconElement.topPosition -= 1;
-        }
+        this.element.setAttribute("style", `left: ${this.xMove.num}px; top: ${this.yMove.num}px;`);
     }
-    iconElement.iconEl.setAttribute("style", `left: ${iconElement.leftPosition}px; top: ${iconElement.topPosition}px;`);
-};
-plusIcon.addEventListener("click", () => {
-    const leftStart = Math.floor(Math.random() * (window.innerWidth - 50));
-    const topStart = Math.floor(Math.random() * (window.innerHeight - 50));
-    const icon = document.createElement("i");
-    const iconObject = {
-        id: iconList.length + 1,
-        iconEl: icon,
-        leftPosition: leftStart,
-        topPosition: topStart,
-        xDirection: Math.floor(Math.random() * 100) > 49 ? "left" : "right",
-        yDirection: Math.floor(Math.random() * 100) > 49 ? "top" : "bottom"
-    };
-    icon.setAttribute("style", `left: ${iconObject.leftPosition}px; top: ${iconObject.topPosition}px;`);
-    icon.setAttribute("class", "fa-solid fa-scissors");
-    document.body.appendChild(icon);
-    iconList.push(iconObject);
-    console.log(iconObject.leftPosition, iconObject.topPosition);
-    setInterval(() => {
-        updatePosition(iconObject);
-    }, Math.floor(Math.random() * 10) + 1);
-});
+}
+let newIcon = new IconElement(1, 0, 100);
+let newIconTwo = new IconElement(2, window.innerWidth - 70);
+newIcon.init();
+newIconTwo.init();

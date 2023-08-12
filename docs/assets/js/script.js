@@ -1,78 +1,54 @@
 "use strict";
-const plusIconEl = document.getElementById("plus");
-let elementCounter = 0;
-let iconArray = [];
-class Movement {
-    num;
-    forward;
-    increment;
-    max;
-    constructor(num, forward, increment, vertical) {
-        this.num = num;
-        this.forward = forward;
-        this.increment = increment;
-        this.max = vertical ? window.innerHeight - 52 : window.innerWidth - 52;
-    }
-    move() {
-        if (this.forward) {
-            if (this.num - this.increment < 0) {
-                this.forward = false;
-                this.num += this.increment;
-            }
-            else {
-                this.num -= this.increment;
-            }
+const bigSquare = document.querySelector("main");
+const mainBoundingRect = bigSquare.getBoundingClientRect();
+const addElement = () => {
+    const newDiv = document.createElement("div");
+    document.body.appendChild(newDiv);
+    return moveElement(newDiv);
+};
+const moveElement = (element) => {
+    let x = 0;
+    let y = 0;
+    let xIncrement = 2;
+    let yIncrement = 2;
+    const xMax = window.innerWidth - 25;
+    const yMax = window.innerHeight - 25;
+    const comparePositions = (p1, p2) => {
+        let r1, r2;
+        if (p1[0] < p2[0]) {
+            r1 = p1;
+            r2 = p2;
         }
         else {
-            if (this.num + this.increment > this.max) {
-                this.forward = true;
-                this.num -= this.increment;
+            r1 = p2;
+            r2 = p1;
+        }
+        return r1[1] > r2[0] || r1[0] === r2[0];
+    };
+    setInterval(() => {
+        if (x + xIncrement > xMax || x + xIncrement < 0) {
+            xIncrement = xIncrement * -1;
+        }
+        if (y + yIncrement > yMax || y + yIncrement < 0) {
+            yIncrement = yIncrement * -1;
+        }
+        let { left, right, top, bottom } = element.getBoundingClientRect();
+        if (comparePositions([left, right], [mainBoundingRect.left, mainBoundingRect.right]) &&
+            comparePositions([top, bottom], [mainBoundingRect.top, mainBoundingRect.bottom])) {
+            console.log(left, right);
+            console.log(mainBoundingRect.left, mainBoundingRect.right);
+            if (Math.abs(left - mainBoundingRect.right) < 1 ||
+                Math.abs(right - mainBoundingRect.left) < 1) {
+                xIncrement = xIncrement * -1;
             }
             else {
-                this.num += this.increment;
+                yIncrement = yIncrement * -1;
             }
         }
-    }
-}
-class IconElement {
-    id;
-    element = document.createElement("i");
-    xMove;
-    yMove;
-    constructor(id, startingX, startingY) {
-        this.id = id;
-        this.xMove = new Movement(startingX || 0, false, 1, false);
-        this.yMove = new Movement(startingY || 0, false, 0, true);
-    }
-    init() {
-        this.element.setAttribute("class", "fa-solid fa-scissors");
-        this.element.setAttribute("style", `left: ${this.xMove.num}px; top: ${this.yMove.num}px;`);
-        document.body.appendChild(this.element);
-        setInterval(() => {
-            this.moveIcon();
-        }, 1);
-        iconArray.push(this);
-        console.dir(this.element);
-    }
-    moveIcon() {
-        this.xMove.move();
-        this.yMove.move();
-        for (let i = 0; i < iconArray.length; i++) {
-            const element = iconArray[i];
-            if (element.id !== this.id) {
-                if ((this.xMove.num === element.xMove.num ||
-                    this.xMove.num === element.xMove.num + 52) &&
-                    this.yMove.num <= element.yMove.num + 52) {
-                    this.xMove.forward = !this.xMove.forward;
-                    element.xMove.forward = !element.xMove.forward;
-                    break;
-                }
-            }
-        }
-        this.element.setAttribute("style", `left: ${this.xMove.num}px; top: ${this.yMove.num}px;`);
-    }
-}
-let newIcon = new IconElement(1, 0, 100);
-let newIconTwo = new IconElement(2, window.innerWidth - 70);
-newIcon.init();
-newIconTwo.init();
+        x = x + xIncrement;
+        y = y + yIncrement;
+        element.style.left = `${x}px`;
+        element.style.top = `${y}px`;
+    }, 10);
+};
+document.body.addEventListener("click", addElement);

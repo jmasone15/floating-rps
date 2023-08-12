@@ -1,25 +1,21 @@
 body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    height: 100vh;
     width: 100vw;
-    overflow: hidden;
-    margin: 0;
+    height: 100vh;
+    margin: auto;
 }
 
-#wrapper {
-    height: 90vh;
-    width: 90vw;
-    border: 1px solid black;
-}
-
-.fa-scissors {
+div {
+    height: 25px;
+    width: 25px;
+    border: red solid 1px;
     position: fixed;
-    border: solid 1px red;
 }
 
-i {
-    font-size: 50px;
+main {
+    position: fixed;
+    left: 40%;
+    top: 30%;
+    height: 300px;
+    width: 300px;
+    border: blue solid 1px;
 }

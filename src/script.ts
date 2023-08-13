@@ -16,19 +16,24 @@ const moveElement = (element: HTMLElement) => {
     const xMax = window.innerWidth - 25;
     const yMax = window.innerHeight - 25;
 
-    const comparePositions = (p1: number[], p2: number[]) => {
-        let r1, r2;
-        if (p1[0] < p2[0]) {
-            r1 = p1;
-            r2 = p2;
+    const comparePositions = (shapeSidesOne: number[], shapeSidesTwo: number[]) => {
+        // This function runs to compare two shapes to see if they are touching either horizontally or vertically.
+        // The first step is to figure out which shape is the closest to the starting point of 0,0 on the screen.
+        // The next step is determining if the opposite side of the closest shape is touching the opposing side of the other shape.
+
+        let leftTopShape, rightBottomShape;
+        if (shapeSidesOne[0] < shapeSidesTwo[0]) {
+            leftTopShape = shapeSidesOne;
+            rightBottomShape = shapeSidesTwo;
         } else {
-            r1 = p2;
-            r2 = p1;
+            leftTopShape = shapeSidesTwo;
+            rightBottomShape = shapeSidesOne;
         }
-        return r1[1] > r2[0] || r1[0] === r2[0];
+
+        return leftTopShape[1] > rightBottomShape[0] || leftTopShape[0] === rightBottomShape[0];
     };
 
-    setInterval(() => {
+    const test = setInterval(() => {
         if (x + xIncrement > xMax || x + xIncrement < 0) {
             xIncrement = xIncrement * -1;
         }
@@ -42,13 +47,30 @@ const moveElement = (element: HTMLElement) => {
             comparePositions([left, right], [mainBoundingRect.left, mainBoundingRect.right]) &&
             comparePositions([top, bottom], [mainBoundingRect.top, mainBoundingRect.bottom])
         ) {
-            console.log(left, right);
-            console.log(mainBoundingRect.left, mainBoundingRect.right);
+            console.log(left, right, top, bottom);
+            console.log(
+                mainBoundingRect.left,
+                mainBoundingRect.right,
+                mainBoundingRect.top,
+                mainBoundingRect.bottom
+            );
 
-            if (
-                Math.abs(left - mainBoundingRect.right) < 1 ||
-                Math.abs(right - mainBoundingRect.left) < 1
-            ) {
+            const leftBump = Math.abs(left - mainBoundingRect.right) < 2;
+            const rightBump = Math.abs(right - mainBoundingRect.left) < 2;
+            const topBump = Math.abs(top - mainBoundingRect.bottom) < 2;
+            const bottomBump = Math.abs(bottom - mainBoundingRect.top) < 2;
+
+            if (leftBump) {
+                console.log("Left Bump");
+            } else if (rightBump) {
+                console.log("Right Bump");
+            } else if (topBump) {
+                console.log("Top Bump");
+            } else if (bottomBump) {
+                console.log("Bottom Bump");
+            }
+
+            if (leftBump || rightBump) {
                 xIncrement = xIncrement * -1;
             } else {
                 yIncrement = yIncrement * -1;

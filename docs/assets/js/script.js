@@ -3,9 +3,10 @@ const iconsArray = [];
 const iconSize = 50;
 class IconElement {
     id;
-    element = document.createElement("div");
+    element = document.createElement("img");
     coordinates;
     increments;
+    type;
     speed = 10;
     constructor(id) {
         this.id = id;
@@ -17,9 +18,11 @@ class IconElement {
             coinFlip(-1, 1),
             coinFlip(-1, 1)
         ];
+        this.type = threeSidedCoinFlip("rock", "paper", "scissors");
     }
     init() {
         iconsArray.push(this);
+        this.updateShapeType(this.type);
         document.body.appendChild(this.element);
         return this.movement();
     }
@@ -52,6 +55,20 @@ class IconElement {
     getDOMCoordinates() {
         return this.element.getBoundingClientRect();
     }
+    updateShapeType(newType) {
+        this.type = newType;
+        let imagePath = "./assets/images/";
+        if (this.type === "rock") {
+            imagePath += "icons8-rock-48.png";
+        }
+        else if (this.type === "paper") {
+            imagePath += "icons8-page-facing-up-48.png";
+        }
+        else {
+            imagePath += "icons8-scissors-48.png";
+        }
+        this.element.setAttribute("src", imagePath);
+    }
     shapeBump() {
         const { left, right, top, bottom } = this.getDOMCoordinates();
         for (let i = 0; i < iconsArray.length; i++) {
@@ -70,6 +87,9 @@ class IconElement {
                     this.flipDirection(false);
                     iconsArray[i].flipDirection(false);
                 }
+                const newTypes = typeBump(this.type, iconsArray[i].type);
+                this.updateShapeType(newTypes[0]);
+                iconsArray[i].updateShapeType(newTypes[1]);
                 this.moveShape();
                 iconsArray[i].moveShape();
                 return true;
@@ -99,6 +119,48 @@ const randomNumber = (min, max) => {
 };
 const coinFlip = (a, b) => {
     return randomNumber(0, 100) > 49 ? a : b;
+};
+const threeSidedCoinFlip = (a, b, c) => {
+    const randomNum = randomNumber(0, 100);
+    if (randomNum >= 0 && randomNum < 33) {
+        return a;
+    }
+    else if (randomNum >= 33 && randomNum < 66) {
+        return b;
+    }
+    else {
+        return c;
+    }
+};
+const typeBump = (typeOne, typeTwo) => {
+    let newTypes = [typeOne, typeTwo];
+    switch (typeOne) {
+        case "rock":
+            if (typeTwo === "scissors") {
+                newTypes[1] = "rock";
+            }
+            else if (typeTwo === "paper") {
+                newTypes[0] = "paper";
+            }
+            break;
+        case "scissors":
+            if (typeTwo === "paper") {
+                newTypes[1] = "scissors";
+            }
+            else if (typeTwo === "rock") {
+                newTypes[0] = "rock";
+            }
+            break;
+        default:
+            if (typeTwo === "rock") {
+                newTypes[1] = "paper";
+            }
+            else if (typeTwo === "scissors") {
+                newTypes[0] = "scissors";
+            }
+            break;
+    }
+    return newTypes;
 };
 document.body.addEventListener("click", () => {
     new IconElement(iconsArray.length).init();

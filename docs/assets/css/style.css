@@ -4,11 +4,13 @@ body {
     margin: auto;
 }
 
-div {
+img {
     height: 50px;
     width: 50px;
-    border: red solid 1px;
+    font-size: 50px;
     position: fixed;
+    text-align: center;
+    user-select: none;
 }
 
 main {

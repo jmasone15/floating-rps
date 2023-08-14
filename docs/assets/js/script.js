@@ -5,19 +5,26 @@ class IconElement {
     id;
     element = document.createElement("div");
     coordinates;
-    increments = [1, 1];
+    increments;
     speed = 10;
     constructor(id) {
         this.id = id;
         this.coordinates = [
-            Math.floor(Math.random() * window.innerWidth - iconSize),
-            Math.floor(Math.random() * window.innerHeight - iconSize)
+            randomNumber(0, window.innerWidth - iconSize),
+            randomNumber(0, window.innerHeight - iconSize)
+        ];
+        this.increments = [
+            coinFlip(-1, 1),
+            coinFlip(-1, 1)
         ];
     }
     init() {
         iconsArray.push(this);
         document.body.appendChild(this.element);
         return this.movement();
+    }
+    flipDirection(isHorizontal) {
+        this.increments[isHorizontal ? 0 : 1] = this.increments[isHorizontal ? 0 : 1] * -1;
     }
     movement() {
         setInterval(() => {
@@ -26,38 +33,45 @@ class IconElement {
             let xInc = this.increments[0];
             let yInc = this.increments[1];
             if (wallBump(true, x, xInc)) {
-                this.increments[0] = xInc * -1;
+                this.flipDirection(true);
             }
             if (wallBump(false, y, yInc)) {
-                this.increments[1] = yInc * -1;
+                this.flipDirection(false);
             }
             if (xInc === this.increments[0] && yInc === this.increments[1]) {
                 this.shapeBump();
             }
-            this.coordinates = [x + this.increments[0], y + this.increments[1]];
-            this.element.style.left = `${x}px`;
-            this.element.style.top = `${y}px`;
+            this.moveShape();
         }, this.speed);
+    }
+    moveShape() {
+        this.coordinates = [this.coordinates[0] + this.increments[0], this.coordinates[1] + this.increments[1]];
+        this.element.style.left = `${this.coordinates[0]}px`;
+        this.element.style.top = `${this.coordinates[1]}px`;
     }
     getDOMCoordinates() {
         return this.element.getBoundingClientRect();
     }
     shapeBump() {
-        const updatedIconArray = iconsArray.filter(icon => icon.id !== this.id);
         const { left, right, top, bottom } = this.getDOMCoordinates();
-        for (let i = 0; i < updatedIconArray.length; i++) {
-            const iconRect = updatedIconArray[i].getDOMCoordinates();
+        for (let i = 0; i < iconsArray.length; i++) {
+            if (iconsArray[i].id === this.id) {
+                continue;
+            }
+            const iconRect = iconsArray[i].getDOMCoordinates();
             if (comparePositions([left, right], [iconRect.left, iconRect.right]) &&
                 comparePositions([top, bottom], [iconRect.top, iconRect.bottom])) {
                 if (Math.abs(left - iconRect.right) < 2 || Math.abs(right - iconRect.left) < 2) {
-                    this.increments[0] = this.increments[0] * -1;
-                    updatedIconArray[i].increments[0] = updatedIconArray[i].increments[0] * -1;
+                    this.flipDirection(true);
+                    iconsArray[i].flipDirection(true);
                 }
                 else if (Math.abs(top - iconRect.bottom) < 2 ||
                     Math.abs(bottom - iconRect.top) < 2) {
-                    this.increments[1] = this.increments[1] * -1;
-                    updatedIconArray[i].increments[1] = updatedIconArray[i].increments[1] * -1;
+                    this.flipDirection(false);
+                    iconsArray[i].flipDirection(false);
                 }
+                this.moveShape();
+                iconsArray[i].moveShape();
                 return true;
             }
         }
@@ -79,6 +93,12 @@ const comparePositions = (shapeSidesOne, shapeSidesTwo) => {
 const wallBump = (isHorizontal, value, increment) => {
     const max = isHorizontal ? window.innerWidth - iconSize : window.innerHeight - iconSize;
     return value + increment > max || value + increment < 0;
+};
+const randomNumber = (min, max) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+};
+const coinFlip = (a, b) => {
+    return randomNumber(0, 100) > 49 ? a : b;
 };
 document.body.addEventListener("click", () => {
     new IconElement(iconsArray.length).init();

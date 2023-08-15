@@ -1,6 +1,10 @@
 "use strict";
 const iconsArray = [];
-const iconSize = 50;
+const iconSize = 40;
+const addBtnEl = document.getElementById("add");
+const colorModeBtnEl = document.getElementById("color-mode");
+const settingsBoxEl = document.querySelector(".settings");
+let darkMode = localStorage.getItem("color-mode") === "true";
 class IconElement {
     id;
     element = document.createElement("img");
@@ -162,6 +166,17 @@ const typeBump = (typeOne, typeTwo) => {
     }
     return newTypes;
 };
-document.body.addEventListener("click", () => {
+const updateColorMode = () => {
+    localStorage.setItem("color-mode", darkMode.toString());
+    document.body.style.backgroundColor = darkMode ? "#0a0e12" : "white";
+    settingsBoxEl.style.color = darkMode ? "white" : "black";
+    colorModeBtnEl.setAttribute("class", `fa-solid fa-${darkMode ? "sun" : "moon"}`);
+};
+addBtnEl.addEventListener("click", () => {
     new IconElement(iconsArray.length).init();
 });
+colorModeBtnEl.addEventListener("click", () => {
+    darkMode = !darkMode;
+    updateColorMode();
+});
+updateColorMode();

@@ -2,6 +2,8 @@ body {
     width: 100vw;
     height: 100vh;
     margin: auto;
+    display: flex;
+    justify-content: flex-end;
 }
 
 img {
@@ -13,11 +15,21 @@ img {
     user-select: none;
 }
 
-main {
-    position: fixed;
-    left: 40%;
-    top: 30%;
-    height: 300px;
-    width: 300px;
-    border: blue solid 1px;
+.settings {
+    z-index: 1;
+    font-size: 40px;
+    margin-right: 5px;
+    margin-top: 5px;
+    border: solid 3px lightgray;
+    border-radius: 8px;
+    height: max-content;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+i {
+    margin: 5px;
+    cursor: pointer;
 }

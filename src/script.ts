@@ -1,6 +1,9 @@
 const iconsArray: IconElement[] = [];
-const iconSize = 50;
-
+const iconSize = 40;
+const addBtnEl = document.getElementById("add") as HTMLElement;
+const colorModeBtnEl = document.getElementById("color-mode") as HTMLElement;
+const settingsBoxEl = document.querySelector(".settings") as HTMLElement;
+let darkMode = localStorage.getItem("color-mode") === "true";
 class IconElement {
     id: number;
     element: HTMLElement = document.createElement("img");
@@ -196,6 +199,19 @@ const typeBump = (typeOne: string, typeTwo: string) => {
     return newTypes
 }
 
-document.body.addEventListener("click", () => {
+const updateColorMode = () => {
+    localStorage.setItem("color-mode", darkMode.toString());
+    document.body.style.backgroundColor = darkMode ? "#0a0e12" : "white";
+    settingsBoxEl.style.color = darkMode ? "white" : "black";
+    colorModeBtnEl.setAttribute("class", `fa-solid fa-${darkMode ? "sun" : "moon"}`)
+}
+
+addBtnEl.addEventListener("click", () => {
     new IconElement(iconsArray.length).init();
 });
+colorModeBtnEl.addEventListener("click", () => {
+    darkMode = !darkMode;
+    updateColorMode()
+});
+
+updateColorMode()
